@@ -1,0 +1,4 @@
+    <platform name="android">
+        <icon src="res/icon/icon.png" />
+    </platform>
+
