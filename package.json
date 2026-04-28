@@ -15,5 +15,14 @@
     "@capacitor/android": "^8.3.1",
     "@capacitor/cli": "^8.3.1",
     "@capacitor/core": "^8.3.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xolboy364/flipp-bird.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Xolboy364/flipp-bird/issues"
+  },
+  "homepage": "https://github.com/Xolboy364/flipp-bird#readme"
 }

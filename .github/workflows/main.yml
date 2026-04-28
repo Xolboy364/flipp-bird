@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -25,8 +26,10 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
 
-      - name: Add Android Platform
-        run: cordova platform add android
+      - name: Initialize Project and Platform
+        run: |
+          npm install
+          cordova platform add android
 
       - name: Build Android Release Bundle
         run: cordova build android --release -- --packageType=bundle
