@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'  # Node.js versiyasi v22 ga ko'tarildi
 
       - name: Install Dependencies
         run: |
@@ -29,9 +29,7 @@ jobs:
 
       - name: Initialize Android Project
         run: |
-          # Eski papkalarni tozalash
           rm -rf android
-          # Capacitor loyihasini yangilash va android papkasini yaratish
           npx cap add android || true
           npx cap sync android
 
