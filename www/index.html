@@ -39,21 +39,17 @@
     font-family:'Press Start 2P',monospace;font-size:9px;
     padding:5px 8px;cursor:pointer;pointer-events:all;z-index:30;
   }
-
-  /* Use display:none for overlays — no ghost click areas */
   .ovl{
     position:absolute;top:0;left:0;width:100%;height:100%;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    background:rgba(10,0,25,0.90);border-radius:16px;
+    background:rgba(10,0,25,0.92);border-radius:16px;
     pointer-events:all;z-index:20;
   }
   .ovl.h{display:none !important;}
-
   .bird-em{font-size:64px;animation:bnc .7s infinite alternate;filter:drop-shadow(0 0 16px #a855f7);}
   @keyframes bnc{from{transform:translateY(0) rotate(-10deg);}to{transform:translateY(-16px) rotate(10deg);}}
   .ttl{margin-top:14px;color:#f0abfc;font-size:24px;text-shadow:0 0 16px #a855f7,2px 2px 0 #000;letter-spacing:2px;}
   .sub{margin-top:6px;color:#c084fc;font-size:8px;letter-spacing:1px;}
-
   .btn{
     padding:16px 0;width:220px;
     background:linear-gradient(135deg,#7c3aed,#a855f7);
@@ -73,16 +69,9 @@
 
   /* Countdown */
   #cdOvl{z-index:25;background:rgba(10,0,25,0.75);}
-  #cdNum{
-    font-size:110px;color:#f0abfc;
-    text-shadow:0 0 40px #a855f7,4px 4px 0 #000;
-  }
+  #cdNum{font-size:110px;color:#f0abfc;text-shadow:0 0 40px #a855f7,4px 4px 0 #000;}
   .cdpop{animation:cdpop .5s ease-out forwards;}
-  @keyframes cdpop{
-    0%{transform:scale(1.8);opacity:0;}
-    50%{opacity:1;}
-    100%{transform:scale(1);opacity:1;}
-  }
+  @keyframes cdpop{0%{transform:scale(1.8);opacity:0;}50%{opacity:1;}100%{transform:scale(1);opacity:1;}}
   #cdMsg{color:#c084fc;font-size:10px;margin-top:16px;letter-spacing:2px;}
 
   /* Revive */
@@ -97,22 +86,46 @@
 
   /* Shop */
   #shopOvl{z-index:22;justify-content:flex-start;padding:20px 0 12px;overflow-y:auto;}
-  .stl{color:#f0abfc;font-size:16px;margin-bottom:4px;text-shadow:0 0 12px #a855f7;}
-  .scn{color:#fde68a;font-size:9px;margin-bottom:14px;}
-  .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 14px;width:100%;}
+  .stl{color:#f0abfc;font-size:15px;margin-bottom:3px;text-shadow:0 0 12px #a855f7;}
+  .scn{color:#fde68a;font-size:8px;margin-bottom:12px;}
+  .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 12px;width:100%;}
   .scard{
-    background:rgba(168,85,247,.15);border:2px solid #7c3aed;
-    border-radius:12px;padding:8px 4px;text-align:center;
+    background:rgba(168,85,247,.12);border:2px solid #7c3aed;
+    border-radius:12px;padding:10px 4px 8px;text-align:center;
     cursor:pointer;transition:border-color .2s,background .2s,transform .1s;
+    display:flex;flex-direction:column;align-items:center;
   }
   .scard:active{transform:scale(.95);}
-  .scard.active{border-color:#f0abfc;background:rgba(168,85,247,.38);}
+  .scard.active{border-color:#f0abfc;background:rgba(168,85,247,.35);}
   .scard.owned{border-color:#a855f7;}
-  .snm{color:#e9d5ff;font-size:5.5px;margin-bottom:3px;}
-  .spr{color:#fde68a;font-size:5px;}
+  .sbird-wrap{
+    width:64px;height:64px;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:5px;
+  }
+  .sbird-wrap canvas{
+    /* override global canvas styles */
+    box-shadow:none !important;
+    border:none !important;
+    border-radius:50% !important;
+    width:60px !important;height:60px !important;
+  }
+  .snm{color:#e9d5ff;font-size:6px;margin-bottom:3px;font-family:'Press Start 2P',monospace;}
+  .spr{color:#fde68a;font-size:5.5px;font-family:'Press Start 2P',monospace;}
   .spr.ol{color:#86efac;}
   .flash{color:#f87171!important;}
-  .btn-back{background:rgba(80,0,120,.6);border-color:#a855f7;width:200px;margin-top:14px;font-size:11px;padding:14px 0;}
+  .btn-back{background:rgba(80,0,120,.6);border-color:#a855f7;width:200px;margin-top:14px;font-size:11px;padding:13px 0;}
+
+  /* Icon download btn */
+  #iconBtn{
+    display:none;
+    position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+    background:rgba(168,85,247,0.3);border:1.5px solid #a855f7;
+    border-radius:8px;color:#f0abfc;
+    font-family:'Press Start 2P',monospace;font-size:7px;
+    padding:6px 10px;cursor:pointer;pointer-events:all;z-index:10;
+    white-space:nowrap;
+  }
 
   @media(max-width:400px){
     #gw{width:100vw;height:100vh;}
@@ -128,6 +141,7 @@
     <div id="coinHud">🪙 <span id="cc">0</span></div>
     <div id="score">0</div>
     <button id="musicBtn" onclick="togMusic()">🎵 ON</button>
+    <button id="iconBtn" onclick="downloadIcon()">⬇ ICON PNG</button>
   </div>
 
   <!-- Menu -->
@@ -190,6 +204,61 @@ function updUI(){
   document.getElementById('shcc').textContent=coins;
 }
 
+// ── BIRD DRAWING (shared for game + shop previews) ──
+// Draw a bird on any canvas context at position (cx,cy) with radius r
+function drawBirdAt(c2d, cx, cy, r, sk, wingOff){
+  const wo = wingOff || 0;
+  c2d.save();
+  // Glow
+  c2d.shadowBlur = r * 1.1;
+  c2d.shadowColor = sk.gl;
+  // Body gradient
+  const bg = c2d.createRadialGradient(cx - r*.22, cy - r*.22, r*.1, cx, cy, r);
+  bg.addColorStop(0, sk.c[0]);
+  bg.addColorStop(0.6, sk.c[1]);
+  bg.addColorStop(1, sk.c[2]);
+  c2d.beginPath();
+  c2d.arc(cx, cy, r, 0, Math.PI*2);
+  c2d.fillStyle = bg;
+  c2d.fill();
+  c2d.shadowBlur = 0;
+
+  // Wing
+  c2d.fillStyle = sk.c[1];
+  c2d.beginPath();
+  c2d.ellipse(cx - r*.33, cy + r*.22 + wo, r*.5, r*.28, -.4, 0, Math.PI*2);
+  c2d.fill();
+
+  // Eye white
+  c2d.fillStyle = '#fff';
+  c2d.beginPath();
+  c2d.arc(cx + r*.39, cy - r*.28, r*.33, 0, Math.PI*2);
+  c2d.fill();
+
+  // Pupil
+  c2d.fillStyle = sk.ey;
+  c2d.beginPath();
+  c2d.arc(cx + r*.42, cy - r*.28, r*.19, 0, Math.PI*2);
+  c2d.fill();
+
+  // Eye shine
+  c2d.fillStyle = '#fff';
+  c2d.beginPath();
+  c2d.arc(cx + r*.48, cy - r*.35, r*.08, 0, Math.PI*2);
+  c2d.fill();
+
+  // Beak
+  c2d.fillStyle = sk.bk;
+  c2d.beginPath();
+  c2d.moveTo(cx + r*.78, cy - r*.11);
+  c2d.lineTo(cx + r*1.22, cy + r*.06);
+  c2d.lineTo(cx + r*.78, cy + r*.22);
+  c2d.closePath();
+  c2d.fill();
+
+  c2d.restore();
+}
+
 // ── AUDIO ──
 let AC=null,musicOn=true,bgN=null;
 function gAC(){
@@ -226,14 +295,11 @@ function pDie(){
   }catch(e){}
   beep(400,'sawtooth',.5,.2,80);
 }
-
 function startBg(){
   if(!musicOn||bgN)return;
   try{
     const a=gAC();
-    const mst=a.createGain();
-    mst.gain.setValueAtTime(.07,a.currentTime);
-    mst.connect(a.destination);
+    const mst=a.createGain();mst.gain.setValueAtTime(.07,a.currentTime);mst.connect(a.destination);
     const bn=[110,110,138.6,110,92.5,110,123.5,110],bs=.32;
     const mn=[330,392,370,330,294,330,370,392,440,392,370,330,294,262,294,330],ms=.16;
     function sched(t){
@@ -241,8 +307,7 @@ function startBg(){
         const o=a.createOscillator(),g=a.createGain();
         o.connect(g);g.connect(mst);o.type='triangle';
         o.frequency.setValueAtTime(f,t+i*bs);
-        g.gain.setValueAtTime(0,t+i*bs);
-        g.gain.linearRampToValueAtTime(.6,t+i*bs+.02);
+        g.gain.setValueAtTime(0,t+i*bs);g.gain.linearRampToValueAtTime(.6,t+i*bs+.02);
         g.gain.linearRampToValueAtTime(0,t+i*bs+bs*.85);
         o.start(t+i*bs);o.stop(t+i*bs+bs);
       });
@@ -252,40 +317,30 @@ function startBg(){
         o.detune.setValueAtTime((Math.random()-.5)*18,t+i*ms);
         o.connect(g);g.connect(mst);o.type='square';
         o.frequency.setValueAtTime(f,t+i*ms);
-        g.gain.setValueAtTime(0,t+i*ms);
-        g.gain.linearRampToValueAtTime(.35,t+i*ms+.01);
+        g.gain.setValueAtTime(0,t+i*ms);g.gain.linearRampToValueAtTime(.35,t+i*ms+.01);
         g.gain.linearRampToValueAtTime(0,t+i*ms+ms*.7);
         o.start(t+i*ms);o.stop(t+i*ms+ms);
       });
     }
     const ll=bn.length*bs;let nx=a.currentTime;
-    const iv=setInterval(()=>{
-      if(!bgN){clearInterval(iv);return;}
-      if(nx<a.currentTime+.1){sched(nx);nx+=ll;}
-    },100);
+    const iv=setInterval(()=>{if(!bgN){clearInterval(iv);return;}if(nx<a.currentTime+.1){sched(nx);nx+=ll;}},100);
     bgN={mst,iv};
   }catch(e){}
 }
 function stopBg(){
-  try{
-    if(!bgN)return;
-    bgN.mst.gain.linearRampToValueAtTime(0,gAC().currentTime+.3);
-    clearInterval(bgN.iv);
-  }catch(e){}
+  try{if(!bgN)return;bgN.mst.gain.linearRampToValueAtTime(0,gAC().currentTime+.3);clearInterval(bgN.iv);}catch(e){}
   bgN=null;
 }
 function togMusic(){
   musicOn=!musicOn;
   document.getElementById('musicBtn').textContent=musicOn?'🎵 ON':'🔇 OFF';
-  if(musicOn&&state==='playing')startBg();
-  else stopBg();
+  if(musicOn&&state==='playing')startBg(); else stopBg();
 }
 function vib(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
 
 // ── STATE ──
-// states: menu | countdown | playing | revive | dead
 let state='menu';
-let score=0,frames=0,animId=null,frameRunning=false;
+let score=0,frames=0;
 let pipeSpeed=2.4,pipeGap=148,reviveUsed=false;
 const BX=80,BR=18;
 let by,bvy,brot;
@@ -300,37 +355,26 @@ let clouds=Array.from({length:4},(_,i)=>({x:i*100+30,y:60+i*40,w:60+i*20,spd:.3+
 
 function resetBird(){by=H/2;bvy=0;brot=0;}
 
-// ── COUNTDOWN then LAUNCH ──
+// ── COUNTDOWN → LAUNCH ──
 function startGame(){
   if(state==='countdown'||state==='playing')return;
-  gAC(); // unlock audio context on user gesture
+  gAC();
   state='countdown';
-  hide('mOvl');
-  show('cdOvl');
+  hide('mOvl');show('cdOvl');
   document.getElementById('score').style.display='none';
-
   let n=3;
   const numEl=document.getElementById('cdNum');
   const msgEl=document.getElementById('cdMsg');
-
   function tick(){
-    numEl.textContent = n===0 ? 'GO!' : String(n);
-    msgEl.textContent = n===0 ? '' : 'GET READY!';
-    // re-trigger animation
-    numEl.classList.remove('cdpop');
-    void numEl.offsetWidth;
-    numEl.classList.add('cdpop');
+    numEl.textContent=n===0?'GO!':String(n);
+    msgEl.textContent=n===0?'':'GET READY!';
+    numEl.classList.remove('cdpop');void numEl.offsetWidth;numEl.classList.add('cdpop');
     pCd(n);
-    if(n===0){
-      setTimeout(launchGame, 480);
-      return;
-    }
-    n--;
-    setTimeout(tick, 680); // 680ms — fast but readable
+    if(n===0){setTimeout(launchGame,480);return;}
+    n--;setTimeout(tick,680);
   }
   tick();
 }
-
 function launchGame(){
   hide('cdOvl');
   resetBird();pipes=[];coinItems=[];parts=[];
@@ -338,11 +382,8 @@ function launchGame(){
   state='playing';
   document.getElementById('score').style.display='block';
   document.getElementById('score').textContent='0';
-  pStart();
-  startBg();
-  updUI();
+  pStart();startBg();updUI();
 }
-
 function jump(){
   if(state!=='playing')return;
   bvy=JMP;pJump();vib(40);spJumpP();
@@ -369,10 +410,8 @@ function die(){
 }
 function doRevive(){
   if(coins<30){skipRevive();return;}
-  clearTimeout(rTmr);clearInterval(rIv);
-  coins-=30;updUI();reviveUsed=true;
-  hide('revOvl');
-  by=H/2;bvy=-4;
+  clearTimeout(rTmr);clearInterval(rIv);coins-=30;updUI();reviveUsed=true;
+  hide('revOvl');by=H/2;bvy=-4;
   pipes=pipes.filter(p=>p.x>BX+130);
   state='playing';startBg();pRevive();spReviveP();
 }
@@ -392,10 +431,8 @@ function showMenu(){
   document.getElementById('bestSc').textContent='🏆 BEST: '+bestScore;
   updUI();show('mOvl');
 }
-
 function show(id){document.getElementById(id).classList.remove('h');}
 function hide(id){document.getElementById(id).classList.add('h');}
-
 function scaleDiff(){
   pipeSpeed=2.4+Math.floor(score/5)*.18;
   pipeGap=Math.max(108,BASEGAP-Math.floor(score/8)*6);
@@ -408,9 +445,7 @@ function updCoinItems(){
     c.x-=pipeSpeed;c.a+=.08;
     if(c.col)return;
     const dx=BX-c.x,dy=by-c.y;
-    if(Math.sqrt(dx*dx+dy*dy)<BR+c.r){
-      c.col=true;coins++;updUI();pCoin();vib(20);spCoinP(c.x,c.y);
-    }
+    if(Math.sqrt(dx*dx+dy*dy)<BR+c.r){c.col=true;coins++;updUI();pCoin();vib(20);spCoinP(c.x,c.y);}
   });
   coinItems=coinItems.filter(c=>c.x+c.r>0&&!c.col);
 }
@@ -422,8 +457,7 @@ function drawCoinItems(){
     const cg=ctx.createRadialGradient(-3,-3,1,0,0,c.r);
     cg.addColorStop(0,'#fef9c3');cg.addColorStop(.6,'#fbbf24');cg.addColorStop(1,'#d97706');
     ctx.beginPath();ctx.arc(0,0,c.r,0,Math.PI*2);ctx.fillStyle=cg;ctx.fill();
-    ctx.shadowBlur=0;
-    ctx.fillStyle='#78350f';ctx.font='bold 10px sans-serif';
+    ctx.shadowBlur=0;ctx.fillStyle='#78350f';ctx.font='bold 10px sans-serif';
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('$',0,1);
     ctx.restore();
   });
@@ -442,8 +476,7 @@ function drawBg(){
   gr.addColorStop(0,'#0f0025');gr.addColorStop(.6,'#1e0352');gr.addColorStop(1,'#0d1f4a');
   ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
   stars.forEach(s=>{
-    s.tw+=s.sp;
-    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    s.tw+=s.sp;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
     ctx.fillStyle=`rgba(255,230,255,${.5+.5*Math.sin(s.tw)})`;ctx.fill();
   });
   clouds.forEach(c=>{
@@ -473,24 +506,20 @@ function dpipe(x,y,w,h,top){
   ctx.fillStyle='#9333ea';ctx.shadowBlur=10;ctx.shadowColor='#c084fc';
   if(top){ctx.beginPath();ctx.roundRect(x-cX/2,h-cH,w+cX,cH,[0,0,6,6]);ctx.fill();}
   else{ctx.beginPath();ctx.roundRect(x-cX/2,y,w+cX,cH,[6,6,0,0]);ctx.fill();}
-  ctx.shadowBlur=0;
-  ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(x+8,top?0:y+cH,8,top?h:h-cH);
+  ctx.shadowBlur=0;ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(x+8,top?0:y+cH,8,top?h:h-cH);
 }
 function drawPipes(){pipes.forEach(p=>{dpipe(p.x,0,PIPEW,p.top,true);dpipe(p.x,p.top+p.gap,PIPEW,H-60-p.top-p.gap,false);});}
+
+// Game bird — uses shared drawBirdAt
 function drawBird(){
   const sk=getSk();
-  ctx.save();ctx.translate(BX,by);ctx.rotate(brot*Math.PI/180);
-  ctx.shadowBlur=18;ctx.shadowColor=sk.gl;
-  const bg=ctx.createRadialGradient(-4,-4,2,0,0,BR);
-  bg.addColorStop(0,sk.c[0]);bg.addColorStop(.6,sk.c[1]);bg.addColorStop(1,sk.c[2]);
-  ctx.beginPath();ctx.arc(0,0,BR,0,Math.PI*2);ctx.fillStyle=bg;ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle=sk.c[1];ctx.beginPath();ctx.ellipse(-6,4+Math.sin(frames*.18)*5,9,5,-.4,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(7,-5,6,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle=sk.ey;ctx.beginPath();ctx.arc(8,-5,3.5,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(9,-6,1.2,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle=sk.bk;ctx.beginPath();ctx.moveTo(14,-2);ctx.lineTo(22,1);ctx.lineTo(14,4);ctx.closePath();ctx.fill();
+  ctx.save();
+  ctx.translate(BX,by);
+  ctx.rotate(brot*Math.PI/180);
+  drawBirdAt(ctx, 0, 0, BR, sk, Math.sin(frames*.18)*5);
   ctx.restore();
 }
+
 function drawParts(){
   parts.forEach(p=>{
     ctx.globalAlpha=p.life;ctx.beginPath();ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);
@@ -519,18 +548,9 @@ function update(){
   }
   for(let i=pipes.length-1;i>=0;i--){
     const p=pipes[i];p.x-=pipeSpeed;
-    if(!p.scored&&p.x+PIPEW<BX-BR){
-      p.scored=true;score++;
-      document.getElementById('score').textContent=score;
-      pScore();scaleDiff();
-    }
-    if(!p.cd&&p.x<W-20){
-      p.cd=true;
-      if(Math.random()<.65)spCoin(p.x+PIPEW/2,p.top+p.gap/2);
-    }
-    if(BX+BR>p.x+4&&BX-BR<p.x+PIPEW-4){
-      if(by-BR<p.top||by+BR>p.top+p.gap){die();return;}
-    }
+    if(!p.scored&&p.x+PIPEW<BX-BR){p.scored=true;score++;document.getElementById('score').textContent=score;pScore();scaleDiff();}
+    if(!p.cd&&p.x<W-20){p.cd=true;if(Math.random()<.65)spCoin(p.x+PIPEW/2,p.top+p.gap/2);}
+    if(BX+BR>p.x+4&&BX-BR<p.x+PIPEW-4){if(by-BR<p.top||by+BR>p.top+p.gap){die();return;}}
   }
   pipes=pipes.filter(p=>p.x+PIPEW>0);
   if(by+BR>=H-60||by-BR<=0){die();return;}
@@ -539,26 +559,34 @@ function update(){
   parts=parts.filter(p=>p.life>0);
 }
 
-// Single persistent RAF loop
 function frame(){
   ctx.clearRect(0,0,W,H);
   drawBg();
-  if(state!=='menu'){
-    drawPipes();drawCoinItems();drawBird();drawParts();
-  } else {
-    // show idle bird in menu
-    drawBird();
+  if(state!=='menu'){drawPipes();drawCoinItems();drawBird();drawParts();}
+  else{
+    // idle bird floating in center for menu
+    const bob=Math.sin(frames*.04)*8;
+    drawBirdAt(ctx, BX, H/2+bob, BR, getSk(), Math.sin(frames*.18)*4);
   }
-  drawHUD();
-  update();
+  drawHUD();update();
   requestAnimationFrame(frame);
 }
 
-// ── SHOP ──
-function openShop(){
-  gAC();
-  hide('mOvl');buildShop();show('shopOvl');updUI();
+// ── SHOP — uses same drawBirdAt ──
+function buildShopBird(sk){
+  const size=60;
+  const c=document.createElement('canvas');
+  c.width=size;c.height=size;
+  const c2=c.getContext('2d');
+  // dark bg circle
+  c2.fillStyle='rgba(15,0,37,0.85)';
+  c2.beginPath();c2.arc(size/2,size/2,size/2,0,Math.PI*2);c2.fill();
+  // bird at center, radius ~20
+  drawBirdAt(c2, size/2, size/2, 20, sk, 0);
+  return c;
 }
+
+function openShop(){gAC();hide('mOvl');buildShop();show('shopOvl');updUI();}
 function closeShop(){hide('shopOvl');show('mOvl');}
 function buildShop(){
   const g=document.getElementById('sgrid');g.innerHTML='';
@@ -566,24 +594,15 @@ function buildShop(){
     const isO=owned.includes(sk.id),isA=activeSkin===sk.id;
     const card=document.createElement('div');
     card.className='scard'+(isA?' active':isO?' owned':'');
-    // smaller bird preview: 40x40
-    const c=document.createElement('canvas');
-    c.width=40;c.height=40;
-    c.style.cssText='display:block;margin:0 auto 4px;';
-    const cx=c.getContext('2d');
-    const r=13;
-    cx.shadowBlur=6;cx.shadowColor=sk.gl;
-    const bg=cx.createRadialGradient(17,17,1,20,20,r);
-    bg.addColorStop(0,sk.c[0]);bg.addColorStop(.6,sk.c[1]);bg.addColorStop(1,sk.c[2]);
-    cx.beginPath();cx.arc(20,20,r,0,Math.PI*2);cx.fillStyle=bg;cx.fill();cx.shadowBlur=0;
-    cx.fillStyle=sk.c[1];cx.beginPath();cx.ellipse(14,23,7,4,-.4,0,Math.PI*2);cx.fill();
-    cx.fillStyle='#fff';cx.beginPath();cx.arc(25,17,4,0,Math.PI*2);cx.fill();
-    cx.fillStyle=sk.ey;cx.beginPath();cx.arc(26,17,2.5,0,Math.PI*2);cx.fill();
-    cx.fillStyle=sk.bk;cx.beginPath();cx.moveTo(30,18);cx.lineTo(37,20);cx.lineTo(30,22);cx.closePath();cx.fill();
+    // Bird preview wrapper
+    const wrap=document.createElement('div');
+    wrap.className='sbird-wrap';
+    const bc=buildShopBird(sk);
+    wrap.appendChild(bc);
     const nm=document.createElement('div');nm.className='snm';nm.textContent=sk.nm;
     const pr=document.createElement('div');pr.className='spr'+(isO?' ol':'');
-    pr.textContent=isA?'✓ ON':isO?'✓ OWNED':'🪙'+sk.p;
-    card.appendChild(c);card.appendChild(nm);card.appendChild(pr);
+    pr.textContent=isA?'✓ ON':isO?'✓ OWNED':'🪙 '+sk.p;
+    card.appendChild(wrap);card.appendChild(nm);card.appendChild(pr);
     card.onclick=()=>pickSkin(sk.id);
     g.appendChild(card);
   });
@@ -591,14 +610,62 @@ function buildShop(){
 function pickSkin(id){
   const sk=SKINS.find(s=>s.id===id);if(!sk)return;
   if(owned.includes(id)){activeSkin=id;buildShop();return;}
-  if(coins>=sk.p){
-    coins-=sk.p;owned.push(id);activeSkin=id;
-    updUI();buildShop();pCoin();
-  } else {
-    const el=document.getElementById('shcc');
-    el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),600);
-  }
+  if(coins>=sk.p){coins-=sk.p;owned.push(id);activeSkin=id;updUI();buildShop();pCoin();}
+  else{const el=document.getElementById('shcc');el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),600);}
 }
+
+// ── APK ICON GENERATOR (built-in) ──
+function generateIcon(size){
+  const ic=document.createElement('canvas');
+  ic.width=size;ic.height=size;
+  const c2=ic.getContext('2d');
+  const s=size;
+
+  // Background — dark purple rounded square
+  const r=s*0.22;
+  c2.fillStyle='#1a0533';
+  c2.beginPath();
+  c2.moveTo(r,0);c2.lineTo(s-r,0);c2.quadraticCurveTo(s,0,s,r);
+  c2.lineTo(s,s-r);c2.quadraticCurveTo(s,s,s-r,s);
+  c2.lineTo(r,s);c2.quadraticCurveTo(0,s,0,s-r);
+  c2.lineTo(0,r);c2.quadraticCurveTo(0,0,r,0);
+  c2.closePath();c2.fill();
+
+  // Purple border glow
+  c2.strokeStyle='#a855f7';
+  c2.lineWidth=s*0.025;
+  c2.shadowBlur=s*0.08;c2.shadowColor='#a855f7';
+  c2.beginPath();
+  c2.moveTo(r,s*0.02);c2.lineTo(s-r,s*0.02);c2.quadraticCurveTo(s-s*0.02,s*0.02,s-s*0.02,r);
+  c2.lineTo(s-s*0.02,s-r);c2.quadraticCurveTo(s-s*0.02,s-s*0.02,s-r,s-s*0.02);
+  c2.lineTo(r,s-s*0.02);c2.quadraticCurveTo(s*0.02,s-s*0.02,s*0.02,s-r);
+  c2.lineTo(s*0.02,r);c2.quadraticCurveTo(s*0.02,s*0.02,r,s*0.02);
+  c2.closePath();c2.stroke();
+  c2.shadowBlur=0;
+
+  // Stars
+  [[0.15,0.18],[0.82,0.15],[0.1,0.78],[0.85,0.80],[0.5,0.1]].forEach(([px,py])=>{
+    c2.fillStyle='rgba(240,171,252,0.7)';
+    c2.beginPath();c2.arc(s*px,s*py,s*0.02,0,Math.PI*2);c2.fill();
+  });
+
+  // Draw classic bird centered, large
+  const sk=SKINS[0]; // classic golden bird for icon
+  drawBirdAt(c2, s*0.48, s*0.52, s*0.28, sk, 0);
+
+  return ic;
+}
+
+function downloadIcon(){
+  const ic=generateIcon(512);
+  const a=document.createElement('a');
+  a.download='flipp-bird-icon-512.png';
+  a.href=ic.toDataURL('image/png');
+  a.click();
+}
+
+// Show icon download button (for dev use)
+document.getElementById('iconBtn').style.display='block';
 
 // ── INPUT ──
 document.addEventListener('keydown',e=>{
@@ -613,7 +680,6 @@ cv.addEventListener('pointerdown',e=>{
   if(state==='playing')jump();
 });
 
-// ── INIT ──
 resetBird();updUI();
 requestAnimationFrame(frame);
 </script>
