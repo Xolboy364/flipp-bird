@@ -25,21 +25,26 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install
-          npm install -g cordova
+          npm install -g @capacitor/cli @capacitor/core @capacitor/android
 
-      - name: Force Add Android Platform
+      - name: Initialize Android Project
         run: |
-          # Agar avvaldan qoldiqlar bo'lsa tozalaymiz va yangidan qo'shamiz
-          cordova platform add android --save || (cordova platform remove android && cordova platform add android)
+          # Eski papkalarni tozalash
+          rm -rf android
+          # Capacitor loyihasini yangilash va android papkasini yaratish
+          npx cap add android || true
+          npx cap sync android
 
       - name: Build Android Release Bundle
-        run: cordova build android --release -- --packageType=bundle
+        run: |
+          cd android
+          ./gradlew bundleRelease
 
       - name: Sign Android Release
         id: sign_app
         uses: r0adkll/sign-android-release@v1
         with:
-          releaseDirectory: platforms/android/app/build/outputs/bundle/release
+          releaseDirectory: android/app/build/outputs/bundle/release
           signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
           alias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
