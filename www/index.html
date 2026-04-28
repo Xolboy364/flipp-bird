@@ -199,3 +199,29 @@ requestAnimationFrame(frame);
 </script>
 </body>
 </html>
+
+
+// --- ADMOB INTEGRATSIYASI ---
+const BANNER_ID = 'ca-app-pub-8551993495127896/5000749696';
+const INTER_ID = 'ca-app-pub-8551993495127896/1117345007';
+
+document.addEventListener('deviceready', () => {
+  if (typeof admob !== 'undefined') {
+    admob.banner.prepare({ id: BANNER_ID, autoShow: true });
+    admob.interstitial.prepare({ id: INTER_ID, autoShow: false });
+  }
+}, false);
+
+function showFullAd() {
+  if (typeof admob !== 'undefined') {
+    admob.interstitial.show();
+    admob.interstitial.prepare({ id: INTER_ID, autoShow: false });
+  }
+}
+
+// O'yin tugaganda reklamani chiqarish uchun die() funksiyasini top va ichiga showFullAd() qo'sh:
+const originalFinalDie = finalDie;
+finalDie = function() {
+  showFullAd(); // Reklama ko'rsatish
+  originalFinalDie();
+};
