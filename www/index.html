@@ -66,6 +66,14 @@
   #deathSc{color:#f9a8d4;font-size:15px;margin-top:10px;}
   .hint{margin-top:12px;color:#d8b4fe;font-size:7px;animation:blk 1s infinite;}
   @keyframes blk{0%,100%{opacity:1}50%{opacity:.2}}
+
+  /* Countdown & Shop Styles qisqartirildi (Sizda borlari qoladi) */
+  #cdOvl{z-index:25;background:rgba(10,0,25,0.75);}
+  #cdNum{font-size:110px;color:#f0abfc;text-shadow:0 0 40px #a855f7,4px 4px 0 #000;}
+  #revOvl{z-index:22;}
+  #shopOvl{z-index:22;justify-content:flex-start;padding:20px 0 12px;overflow-y:auto;}
+  .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 12px;width:100%;}
+  .scard{background:rgba(168,85,247,.12);border:2px solid #7c3aed;border-radius:12px;padding:10px 4px 8px;text-align:center;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -80,128 +88,30 @@
   <div class="ovl" id="mOvl">
     <div class="bird-em">🐦</div>
     <div class="ttl">FLIPP BIRD</div>
-    <div class="sub">RETRO ARCADE</div>
     <div id="deathSc" style="display:none"></div>
     <div class="brow">
       <button class="btn" id="startBtn" onclick="startGame()">▶ PLAY</button>
       <button class="btn btn-shop" onclick="openShop()">🛒 SKINS</button>
     </div>
-    <div class="hint">TAP to flap</div>
     <div id="bestSc">🏆 BEST: 0</div>
     <div style="margin-top:8px;color:#fde68a;font-size:8px;">🪙 <span id="mcc">0</span> coins</div>
   </div>
 
+  <div class="ovl h" id="shopOvl">
+    <div class="sgrid" id="sgrid"></div>
+    <button class="btn" style="margin-top:10px" onclick="closeShop()">BACK</button>
   </div>
+  
+  <div class="ovl h" id="revOvl">
+    <div style="color:white; margin-bottom:20px;">REVIVE?</div>
+    <button class="btn" onclick="doRevive()">YES (30🪙)</button>
+    <button class="btn" style="background:gray; margin-top:10px" onclick="skipRevive()">NO</button>
+  </div>
+</div>
 
 <script src="cordova.js"></script>
-
 <script>
-// --- ADMOB SOZLAMALARI ---
-const BANNER_ID = 'ca-app-pub-8551993495127896/5000749696';
-const INTER_ID = 'ca-app-pub-8551993495127896/1117345007';
-
-document.addEventListener('deviceready', () => {
-  if (typeof admob !== 'undefined') {
-    // Banner ko'rsatish
-    admob.banner.prepare({
-      id: BANNER_ID,
-      autoShow: true
-    });
-    // Interstitial yuklash
-    admob.interstitial.prepare({
-      id: INTER_ID,
-      autoShow: false
-    });
-  }
-}, false);
-
-function showFullAd() {
-  if (typeof admob !== 'undefined') {
-    admob.interstitial.show();
-    admob.interstitial.prepare({ id: INTER_ID, autoShow: false });
-  }
-}
-
-// --- O'YIN KODI ---
-const cv=document.getElementById('c'),ctx=cv.getContext('2d');
-const W=360,H=640;
-let coins=0,owned=['classic'],activeSkin='classic',bestScore=0;
-let score=0, state='menu', frames=0;
-let by, bvy, pipes=[], coinItems=[], parts=[];
-const BX=80, BR=18, GRV=.38, JMP=-7.5, PIPEW=52;
-
-// Skinlar va boshqa funksiyalar (Sizning kodingiz bilan bir xil)
-const SKINS=[
-  {id:'classic',nm:'Classic',p:0,  c:['#fde68a','#f59e0b','#b45309'],bk:'#f97316',ey:'#1e1b4b',gl:'#f0abfc'},
-  {id:'fire',   nm:'Fire',   p:50, c:['#fca5a5','#ef4444','#991b1b'],bk:'#f97316',ey:'#1e1b4b',gl:'#f97316'},
-  {id:'ice',    nm:'Ice',    p:50, c:['#bae6fd','#38bdf8','#0369a1'],bk:'#e0f2fe',ey:'#1e1b4b',gl:'#38bdf8'},
-];
-
-function drawBirdAt(c2d, cx, cy, r, sk, wingOff){
-  const wo = wingOff || 0;
-  c2d.save();
-  c2d.shadowBlur = r * 1.1; c2d.shadowColor = sk.gl;
-  const bg = c2d.createRadialGradient(cx - r*.22, cy - r*.22, r*.1, cx, cy, r);
-  bg.addColorStop(0, sk.c[0]); bg.addColorStop(0.6, sk.c[1]); bg.addColorStop(1, sk.c[2]);
-  c2d.beginPath(); c2d.arc(cx, cy, r, 0, Math.PI*2); c2d.fillStyle = bg; c2d.fill();
-  c2d.restore();
-}
-
-function startGame(){
-  state='playing';
-  by=H/2; bvy=0; score=0; pipes=[];
-  document.getElementById('mOvl').classList.add('h');
-  document.getElementById('score').style.display='block';
-}
-
-function jump(){ if(state==='playing') bvy=JMP; }
-
-function finalDie(){
-  state='dead';
-  if(score>bestScore) bestScore=score;
-  
-  // REKLAMA CHIQARISH
-  showFullAd();
-
-  setTimeout(() => {
-    state='menu';
-    document.getElementById('mOvl').classList.remove('h');
-    document.getElementById('deathSc').style.display='block';
-    document.getElementById('deathSc').textContent='SCORE: '+score;
-  }, 400);
-}
-
-function update(){
-  if(state!=='playing') return;
-  bvy+=GRV; by+=bvy;
-  if(by+BR>H-60 || by-BR<0) finalDie();
-  // Quvurlar logikasi bu yerda...
-}
-
-function frame(){
-  ctx.clearRect(0,0,W,H);
-  // Orqa fon chizish
-  ctx.fillStyle='#1e0352'; ctx.fillRect(0,0,W,H);
-  if(state==='playing'){
-    drawBirdAt(ctx, BX, by, BR, SKINS[0], 0);
-    update();
-  }
-  requestAnimationFrame(frame);
-}
-
-cv.addEventListener('pointerdown', e => {
-  e.preventDefault();
-  if(state==='menu') startGame();
-  else jump();
-});
-
-requestAnimationFrame(frame);
-</script>
-</body>
-</html>
-
-
-// --- ADMOB INTEGRATSIYASI ---
+// --- ADMOB IDLARI ---
 const BANNER_ID = 'ca-app-pub-8551993495127896/5000749696';
 const INTER_ID = 'ca-app-pub-8551993495127896/1117345007';
 
@@ -219,9 +129,97 @@ function showFullAd() {
   }
 }
 
-// O'yin tugaganda reklamani chiqarish uchun die() funksiyasini top va ichiga showFullAd() qo'sh:
-const originalFinalDie = finalDie;
-finalDie = function() {
-  showFullAd(); // Reklama ko'rsatish
-  originalFinalDie();
-};
+// --- O'YIN LOGIKASI ---
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const W=360,H=640;
+const SKINS=[
+  {id:'classic',nm:'Classic',p:0,  c:['#fde68a','#f59e0b','#b45309'],bk:'#f97316',ey:'#1e1b4b',gl:'#f0abfc'},
+  {id:'fire',   nm:'Fire',   p:50, c:['#fca5a5','#ef4444','#991b1b'],bk:'#f97316',ey:'#1e1b4b',gl:'#f97316'},
+  {id:'ice',    nm:'Ice',    p:50, c:['#bae6fd','#38bdf8','#0369a1'],bk:'#e0f2fe',ey:'#1e1b4b',gl:'#38bdf8'}
+];
+
+let coins=0, owned=['classic'], activeSkin='classic', bestScore=0;
+let state='menu', score=0, frames=0;
+let by=H/2, bvy=0, pipes=[], coinItems=[];
+const BX=80, BR=18, GRV=.38, JMP=-7.5, PIPEW=52;
+
+function drawBirdAt(c2d, cx, cy, r, sk) {
+  c2d.save();
+  c2d.shadowBlur = r; c2d.shadowColor = sk.gl;
+  c2d.beginPath(); c2d.arc(cx, cy, r, 0, Math.PI*2);
+  c2d.fillStyle = sk.c[1]; c2d.fill();
+  c2d.restore();
+}
+
+function startGame(){
+  state='playing'; score=0; pipes=[]; by=H/2; bvy=0;
+  document.getElementById('mOvl').classList.add('h');
+  document.getElementById('score').style.display='block';
+}
+
+function jump(){ if(state==='playing') bvy=JMP; }
+
+function die() {
+  if(state!=='playing') return;
+  state='dead';
+  showFullAd(); // O'yin tugashi bilan reklama
+  if(score > bestScore) bestScore = score;
+  
+  setTimeout(() => {
+    state='menu';
+    document.getElementById('mOvl').classList.remove('h');
+    document.getElementById('deathSc').style.display='block';
+    document.getElementById('deathSc').textContent='SCORE: '+score;
+    document.getElementById('bestSc').textContent='🏆 BEST: '+bestScore;
+  }, 500);
+}
+
+function update(){
+  if(state!=='playing') return;
+  bvy+=GRV; by+=bvy;
+  if(by+BR>H-60 || by-BR<0) die();
+  
+  if(frames % 100 === 0) {
+      pipes.push({x:W, top: Math.random()*300+100});
+  }
+  
+  pipes.forEach(p => {
+      p.x -= 3;
+      if(BX+BR > p.x && BX-BR < p.x + PIPEW) {
+          if(by-BR < p.top || by+BR > p.top + 150) die();
+      }
+      if(p.x === BX) { score++; document.getElementById('score').textContent=score; }
+  });
+  pipes = pipes.filter(p => p.x > -PIPEW);
+}
+
+function frame(){
+  ctx.fillStyle='#1e0352'; ctx.fillRect(0,0,W,H);
+  if(state==='playing' || state==='menu') {
+      const sk = SKINS.find(s=>s.id===activeSkin);
+      drawBirdAt(ctx, BX, by, BR, sk);
+      update();
+      // Quvurlarni chizish
+      ctx.fillStyle='#a855f7';
+      pipes.forEach(p => {
+          ctx.fillRect(p.x, 0, PIPEW, p.top);
+          ctx.fillRect(p.x, p.top+150, PIPEW, H);
+      });
+  }
+  frames++;
+  requestAnimationFrame(frame);
+}
+
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if(state==='menu') startGame();
+  else jump();
+});
+
+function openShop() { document.getElementById('shopOvl').classList.remove('h'); }
+function closeShop() { document.getElementById('shopOvl').classList.add('h'); }
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
