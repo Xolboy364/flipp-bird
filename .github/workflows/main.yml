@@ -7,7 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -40,20 +39,8 @@ jobs:
           chmod +x gradlew
           ./gradlew bundleRelease
 
-      - name: Sign Android Release
-        id: sign_app
-        uses: r0adkll/sign-android-release@v1
-        with:
-          releaseDirectory: android/app/build/outputs/bundle/release
-          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-        env:
-          BUILD_TOOLS_VERSION: "34.0.0"
-
-      - name: Upload Signed AAB
+      - name: Upload Unsigned AAB
         uses: actions/upload-artifact@v4
         with:
-          name: flipp-bird-final-aab
-          path: ${{ steps.sign_app.outputs.signedReleaseFile }}
+          name: flipp-bird-ready-to-sign
+          path: android/app/build/outputs/bundle/release/app-release.aab
