@@ -1,4 +1,4 @@
-name: Build APK and AAB (Dual Release)
+name: Build APK and AAB
 
 on:
   push:
@@ -37,11 +37,11 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease  # Mana shu buyruq APK yaratadi
-          ./gradlew bundleRelease    # Bu esa AAB yaratadi
+          ./gradlew assembleRelease
+          ./gradlew bundleRelease
 
-      - name: Sign Android Files
-        id: sign_app
+      - name: Sign Android APK
+        id: sign_apk
         uses: r0adkll/sign-android-release@v1
         with:
           releaseDirectory: android/app/build/outputs/apk/release
@@ -49,9 +49,17 @@ jobs:
           alias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: "34.0.0" # Eng oxirgi va barqaror versiya
 
-      - name: Upload APK (Telefoningizga o'rnatish uchun)
+      - name: Upload Signed APK
         uses: actions/upload-artifact@v4
         with:
           name: flipp-bird-INSTALL-APK
-          path: android/app/build/outputs/apk/release/app-release-unsigned-signed.apk
+          path: ${{ steps.sign_apk.outputs.signedReleaseFile }}
+
+      - name: Upload Unsigned AAB (Play Market uchun)
+        uses: actions/upload-artifact@v4
+        with:
+          name: flipp-bird-AAB-to-sign-manually
+          path: android/app/build/outputs/bundle/release/app-release.aab
